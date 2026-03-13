@@ -14,9 +14,18 @@ db.exec(`
     lat REAL NOT NULL,
     lng REAL NOT NULL,
     timestamp TEXT NOT NULL,
+    ended_at TEXT,
     active INTEGER DEFAULT 1,
     FOREIGN KEY (user_id) REFERENCES users(id)
   );
 `);
+
+try {
+  db.prepare('ALTER TABLE parkings ADD COLUMN ended_at TEXT').run();
+} catch (error) {
+  if (!String(error.message).includes('duplicate column name')) {
+    throw error;
+  }
+}
 
 module.exports = db;

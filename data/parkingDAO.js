@@ -6,26 +6,25 @@ class ParkingDAO {
   }
 
   getHistory(userId) {
-    return db.prepare('SELECT * FROM parkings WHERE user_id = ? ORDER BY id DESC').all(userId);
+    return db.prepare('SELECT id, user_id, lat, lng, timestamp, ended_at AS endedAt, active FROM parkings WHERE user_id = ? ORDER BY id DESC').all(userId);
   }
 
   getHistoryAll() {
-    return db.prepare('SELECT * FROM parkings ORDER BY id DESC').all();
+    return db.prepare('SELECT id, user_id, lat, lng, timestamp, ended_at AS endedAt, active FROM parkings ORDER BY id DESC').all();
   }
 
   create(userId, lat, lng, timestamp) {
-    // ← AÑADIDO: Desactivar anteriores ANTES de crear nuevo
     this.deactivate_all(userId);
-    return db.prepare('INSERT INTO parkings (user_id, lat, lng, timestamp, active) VALUES (?, ?, ?, ?, 1)').run(userId, lat, lng, timestamp);
+    return db.prepare('INSERT INTO parkings (user_id, lat, lng, timestamp, ended_at, active) VALUES (?, ?, ?, ?, NULL, 1)').run(userId, lat, lng, timestamp);
   }
 
-  deactivate(id) {
-    return db.prepare('UPDATE parkings SET active = 0 WHERE id = ?').run(id);
+  deactivate(id, endedAt = new Date().toISOString()) {
+    return db.prepare('UPDATE parkings SET active = 0, ended_at = ? WHERE id = ?').run(endedAt, id);
   }
 
-  // ← NUEVO MÉTODO (1 línea)
   deactivate_all(userId) {
-    return db.prepare('UPDATE parkings SET active = 0 WHERE user_id = ? AND active = 1').run(userId);
+    const endedAt = new Date().toISOString();
+    return db.prepare('UPDATE parkings SET active = 0, ended_at = ? WHERE user_id = ? AND active = 1').run(endedAt, userId);
   }
 }
 

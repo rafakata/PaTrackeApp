@@ -1,5 +1,5 @@
-body {
-  background-color: #f8f9fa;
+body, html {
+  font-family: 'Poppins', Arial, sans-serif !important;
 }
 
 #map {
@@ -8,6 +8,39 @@ body {
 }
 
 .navbar-brand {
+  font-family: 'Zen Dots', cursive !important;
   font-size: 1.3rem;
-  font-weight: bold;
+  font-weight: 400;
 }
+
+.app-chrome {
+  background-color: var(--color-azul) !important;
+}
+
+.table thead.table-dark th {
+  background-color: var(--color-verde) !important;
+  border-color: var(--color-verde) !important;
+  color: #ffffff;
+}
+
+/* Login button hover: Entrar */
+.login-btn:hover {
+  background-color: #fff !important;
+  color: var(--color-azul) !important;
+  border-color: var(--color-azul) !important;
+}
+
+/* Register button default: Registrarse */
+.register-btn {
+  background-color: var(--color-verde) !important;
+  border-color: var(--color-verde) !important;
+  color: #fff !important;
+}
+
+/* Register button hover: fondo blanco, borde y texto verde */
+.register-btn:hover {
+  background-color: #fff !important;
+  color: var(--color-verde) !important;
+  border-color: var(--color-verde) !important;
+}
+

@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', function () {
       lat: Number(row.lat),
       lng: Number(row.lng),
       timestamp: typeof row.timestamp === 'number' ? row.timestamp : new Date(row.timestamp).getTime(),
+      endedAt: row.endedAt ? (typeof row.endedAt === 'number' ? row.endedAt : new Date(row.endedAt).getTime()) : null,
       active: !!row.active
     };
   }
@@ -58,17 +59,20 @@ document.addEventListener('DOMContentLoaded', function () {
     historyBody.innerHTML = '';
 
     if (!historyData.length) {
-      historyBody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No hay aparcamientos registrados.</td></tr>';
+      historyBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No hay aparcamientos registrados.</td></tr>';
       return;
     }
 
     historyData.forEach((row, index) => {
+      const endMs = row.active ? Date.now() : (row.endedAt ?? row.timestamp);
+      const minutes = Math.max(0, Math.floor((endMs - row.timestamp) / 60000));
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${index + 1}</td>
         <td>${row.lat.toFixed(5)}</td>
         <td>${row.lng.toFixed(5)}</td>
         <td>${new Date(row.timestamp).toLocaleString('es-ES')}</td>
+        <td>${minutes}</td>
         <td>${row.active ? '<span class="badge bg-success">En curso</span>' : '<span class="badge bg-secondary">Finalizado</span>'}</td>
       `;
       historyBody.appendChild(tr);
@@ -146,6 +150,7 @@ document.addEventListener('DOMContentLoaded', function () {
         lat: parkingData.lat,
         lng: parkingData.lng,
         timestamp: parkingData.timestamp,
+        endedAt: null,
         active: true
       });
       syncHistoryStorage();
@@ -177,6 +182,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const firstActiveIndex = historyData.findIndex(item => item.active);
       if (firstActiveIndex !== -1) {
         historyData[firstActiveIndex].active = false;
+        historyData[firstActiveIndex].endedAt = Date.now();
       }
       syncHistoryStorage();
       renderHistory();
@@ -242,6 +248,11 @@ document.addEventListener('DOMContentLoaded', function () {
     historyData = getGuestHistory();
   }
   renderHistory();
+  setInterval(() => {
+    if (historyData.some(item => item.active)) {
+      renderHistory();
+    }
+  }, 1000);
 
   const saved = localStorage.getItem(activeKey);
   if (saved) {

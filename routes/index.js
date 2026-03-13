@@ -24,7 +24,6 @@ router.get('/', async function(req, res, next) {       // ← CAMBIADO (async)
 // ← AÑADIDAS RUTAS DEL PARKING TRACKER
 router.post('/api/parking', requireLogin, (req, res) => {
   const { lat, lng, timestamp } = req.body;
-  parkingDAO.deactivate_all(req.session.userId);
   const info = parkingDAO.create(req.session.userId, lat, lng, timestamp);
   res.json({ ok: true, id: info.lastInsertRowid });
 });
@@ -35,9 +34,5 @@ router.post('/api/parking/end', requireLogin, (req, res) => {
   res.json({ ok: true });
 });
 
-router.get('/history', requireLogin, (req, res) => {
-  const history = parkingDAO.getHistory(req.session.userId);
-  res.render('history', { history });
-});
 
 module.exports = router;

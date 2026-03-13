@@ -1,0 +1,23 @@
+:root {
+  --color-azul: #0968EF;
+  --color-verde: #7DDF8B;
+  --color-gris-neutro: #D9D9D9;
+}
+
+html,
+body {
+  font-family: 'Poppins', Arial, sans-serif;
+}
+
+*,
+*::before,
+*::after,
+button,
+input,
+select,
+textarea,
+.leaflet-container,
+.leaflet-popup-content-wrapper,
+.leaflet-popup-content {
+  font-family: inherit;
+}

@@ -1,3 +1,22 @@
+/* Responsive table for history */
+.table-responsive {
+  overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+  #history-table th, #history-table td {
+    font-size: 0.82rem;
+    padding: 0.2rem 0.1rem;
+    white-space: nowrap;
+  }
+  .table-responsive {
+    min-height: 220px;
+    margin-bottom: 1rem;
+  }
+  h2.mb-4 {
+    font-size: 1.1rem;
+  }
+}
 body, html {
   font-family: 'Poppins', Arial, sans-serif !important;
 }

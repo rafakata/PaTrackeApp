@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
   let timerInterval = null;
   let carMarker = null;
   let userMarker = null;
+  let historyTable = null;
   let historyData = Array.isArray(initialHistory) ? initialHistory.map(normalizeHistoryRow) : [];
 
   const btnPark = document.getElementById('btn-park');
@@ -23,6 +24,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const infoPanel = document.getElementById('info-panel');
   const coordsVehicle = document.getElementById('coords-vehicle');
   const historyBody = document.getElementById('history-body');
+  const historyTableEl = document.getElementById('history-table');
 
   function normalizeHistoryRow(row) {
     return {
@@ -56,27 +58,95 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function renderHistory() {
     if (!historyBody) return;
-    historyBody.innerHTML = '';
+    const rows = historyData.map((row, index) => {
+      const endMs = row.active ? Date.now() : (row.endedAt ?? row.timestamp);
+      const durationSeconds = Math.max(0, Math.floor((endMs - row.timestamp) / 1000));
+      return {
+        orderIndex: index + 1,
+        lat: row.lat.toFixed(5),
+        lng: row.lng.toFixed(5),
+        date: new Date(row.timestamp).toLocaleString('es-ES'),
+        durationSeconds,
+        durationLabel: formatHistoryDuration(durationSeconds),
+        status: row.active ? '<span class="badge bg-success">En curso</span>' : '<span class="badge bg-secondary">Finalizado</span>'
+      };
+    });
 
-    if (!historyData.length) {
+    if (historyTable) {
+      historyTable.clear();
+      historyTable.rows.add(rows).draw(false);
+      return;
+    }
+
+    historyBody.innerHTML = '';
+    if (!rows.length) {
       historyBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No hay aparcamientos registrados.</td></tr>';
       return;
     }
 
-    historyData.forEach((row, index) => {
-      const endMs = row.active ? Date.now() : (row.endedAt ?? row.timestamp);
-      const minutes = Math.max(0, Math.floor((endMs - row.timestamp) / 60000));
+    rows.forEach((row) => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td>${index + 1}</td>
-        <td>${row.lat.toFixed(5)}</td>
-        <td>${row.lng.toFixed(5)}</td>
-        <td>${new Date(row.timestamp).toLocaleString('es-ES')}</td>
-        <td>${minutes}</td>
-        <td>${row.active ? '<span class="badge bg-success">En curso</span>' : '<span class="badge bg-secondary">Finalizado</span>'}</td>
+        <td>${row.orderIndex}</td>
+        <td>${row.lat}</td>
+        <td>${row.lng}</td>
+        <td>${row.date}</td>
+        <td>${row.durationLabel}</td>
+        <td>${row.status}</td>
       `;
       historyBody.appendChild(tr);
     });
+  }
+
+  function initHistoryTable() {
+    if (!historyTableEl) return;
+    if (!window.jQuery || !jQuery.fn || !jQuery.fn.DataTable) return;
+
+    historyTable = jQuery(historyTableEl).DataTable({
+      data: [],
+      columns: [
+        { data: 'orderIndex', orderable: true },
+        { data: 'lat', orderable: false },
+        { data: 'lng', orderable: false },
+        { data: 'date', orderable: false },
+        {
+          data: 'durationSeconds',
+          orderable: true,
+          render: function (data, type, row) {
+            if (type === 'sort' || type === 'type') return data;
+            return row.durationLabel;
+          }
+        },
+        { data: 'status', orderable: false }
+      ],
+      pageLength: 5,
+      lengthChange: false,
+      searching: false,
+      info: false,
+      pagingType: 'simple',
+      order: [[0, 'asc']],
+      language: {
+        emptyTable: 'No hay aparcamientos registrados.',
+        paginate: {
+          previous: 'Anterior',
+          next: 'Siguiente'
+        }
+      }
+    });
+  }
+
+  function formatHistoryDuration(totalSeconds) {
+    if (totalSeconds < 60) {
+      return `${totalSeconds}s`;
+    }
+    if (totalSeconds < 3600) {
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      return `${minutes}m ${seconds}s`;
+    }
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    return `${hours}h ${minutes}m`;
   }
 
   function haversine(lat1, lng1, lat2, lng2) {
@@ -125,7 +195,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (userMarker) map.removeLayer(userMarker);
       userMarker = L.marker([lat, lng], {
-        icon: L.divIcon({ className: '', html: '🧍', iconSize: [30, 30] })
+        icon: L.divIcon({
+          className: '',
+          html: '<i class="bi bi-person-fill" style="font-size: 1.5rem; color: #000;"></i>',
+          iconSize: [30, 30]
+        })
       }).addTo(map).bindPopup('Tu posición');
 
       map.fitBounds([[lat, lng], [parkingData.lat, parkingData.lng]], { padding: [40, 40] });
@@ -157,7 +231,7 @@ document.addEventListener('DOMContentLoaded', function () {
       renderHistory();
     }
 
-    statusBadge.textContent = '🚗 Vehículo aparcado';
+    statusBadge.textContent = 'Vehículo aparcado';
     statusBadge.className = 'badge bg-success fs-6 mb-3';
     infoPanel.classList.remove('d-none');
     btnPark.classList.add('d-none');
@@ -165,7 +239,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (carMarker) map.removeLayer(carMarker);
     carMarker = L.marker([parkingData.lat, parkingData.lng], {
-      icon: L.divIcon({ className: '', html: '🚗', iconSize: [30, 30] })
+      icon: L.divIcon({
+        className: '',
+        html: '<i class="bi bi-car-front-fill" style="font-size: 1.5rem; color: #000;"></i>',
+        iconSize: [30, 30]
+      })
     }).addTo(map).bindPopup('Tu vehículo').openPopup();
 
     clearInterval(timerInterval);
@@ -247,6 +325,7 @@ document.addEventListener('DOMContentLoaded', function () {
   if (!isLogged) {
     historyData = getGuestHistory();
   }
+  initHistoryTable();
   renderHistory();
   setInterval(() => {
     if (historyData.some(item => item.active)) {

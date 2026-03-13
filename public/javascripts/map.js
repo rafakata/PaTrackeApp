@@ -1,3 +1,4 @@
+// Script principal para la interacción del mapa y el historial
 document.addEventListener('DOMContentLoaded', function () {
   const map = L.map('map').setView([36.7213, -4.4214], 15);
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -26,6 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const historyBody = document.getElementById('history-body');
   const historyTableEl = document.getElementById('history-table');
 
+  // Normaliza los datos de historial
   function normalizeHistoryRow(row) {
     return {
       lat: Number(row.lat),
@@ -36,6 +38,7 @@ document.addEventListener('DOMContentLoaded', function () {
     };
   }
 
+  // Obtiene el historial de aparcamientos del invitado
   function getGuestHistory() {
     try {
       const parsed = JSON.parse(localStorage.getItem(historyKey));
@@ -46,16 +49,19 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+  // Guarda el historial de invitado en localStorage
   function saveGuestHistory(items) {
     localStorage.setItem(historyKey, JSON.stringify(items));
   }
 
+  // Sincroniza el historial en localStorage si es invitado
   function syncHistoryStorage() {
     if (!isLogged) {
       saveGuestHistory(historyData);
     }
   }
 
+  // Renderiza la tabla de historial
   function renderHistory() {
     if (!historyBody) return;
     const rows = historyData.map((row, index) => {
@@ -98,6 +104,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  // Inicializa DataTables para la tabla de historial
   function initHistoryTable() {
     if (!historyTableEl) return;
     if (!window.jQuery || !jQuery.fn || !jQuery.fn.DataTable) return;
@@ -135,6 +142,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  // Formatea la duración en s, m+s, h+m
   function formatHistoryDuration(totalSeconds) {
     if (totalSeconds < 60) {
       return `${totalSeconds}s`;
@@ -149,6 +157,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return `${hours}h ${minutes}m`;
   }
 
+  // Calcula la distancia entre dos coordenadas
   function haversine(lat1, lng1, lat2, lng2) {
     const R = 6371000;
     const phi1 = lat1 * Math.PI / 180;
@@ -160,10 +169,12 @@ document.addEventListener('DOMContentLoaded', function () {
     return R * c;
   }
 
+  // Formatea la distancia en metros o km
   function formatDistance(meters) {
     return meters >= 1000 ? `${(meters / 1000).toFixed(2)} km` : `${Math.round(meters)} m`;
   }
 
+  // Formatea el tiempo transcurrido
   function formatElapsed(ms) {
     const totalSeconds = Math.floor(ms / 1000);
     const hours = Math.floor(totalSeconds / 3600);
@@ -172,6 +183,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return `${hours}h ${minutes}m ${seconds}s`;
   }
 
+  // Actualiza la UI de estado y distancia
   function updateUI() {
     if (!parkingData) return;
     const now = Date.now();
@@ -181,6 +193,7 @@ document.addEventListener('DOMContentLoaded', function () {
     coordsVehicle.textContent = `Coche: ${parkingData.lat.toFixed(5)}, ${parkingData.lng.toFixed(5)}`;
   }
 
+  // Inicia el seguimiento de la ubicación del usuario
   function startWatch() {
     if (!navigator.geolocation) return;
     if (watchId !== null) return;
@@ -207,6 +220,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }, () => {}, { enableHighAccuracy: true });
   }
 
+  // Activa un nuevo aparcamiento y actualiza historial
   function setActiveParking(data, appendToHistory = true) {
     parkingData = {
       lat: Number(data.lat),
@@ -252,6 +266,7 @@ document.addEventListener('DOMContentLoaded', function () {
     startWatch();
   }
 
+  // Finaliza el aparcamiento activo y actualiza historial
   function clearParking(markLatestFinished = true) {
     parkingData = null;
     localStorage.removeItem(activeKey);
@@ -290,6 +305,7 @@ document.addEventListener('DOMContentLoaded', function () {
     clearInterval(timerInterval);
   }
 
+  // Evento: aparcar
   btnPark.addEventListener('click', () => {
     if (!navigator.geolocation) {
       alert('Geolocalización no disponible en tu navegador');
@@ -315,6 +331,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
+  // Evento: finalizar aparcamiento
   btnEnd.addEventListener('click', () => {
     clearParking(true);
     if (isLogged) {

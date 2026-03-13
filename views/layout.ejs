@@ -15,11 +15,11 @@
 <body class="d-flex flex-column min-vh-100">
   <nav class="navbar navbar-dark app-chrome px-3">
     <a class="navbar-brand" href="/">PaTrackeApp</a>
-    <div class="d-flex gap-2">
+    <div class="d-flex align-items-center gap-2">
       <% if (user) { %>
         <span class="navbar-text text-white me-2"><%= user.username %></span>
-        <form action="/logout" method="POST" class="d-inline">
-          <button class="btn btn-danger btn-sm">Salir</button>
+        <form action="/logout" method="POST" class="d-inline m-0">
+          <button class="btn btn-danger btn-sm align-middle">Salir</button>
         </form>
       <% } else { %>
         <a href="/login" class="btn btn-outline-light btn-sm">Login</a>

@@ -1,13 +1,15 @@
+// Rutas de usuario: login, registro y logout
 var express = require('express');
 var router = express.Router();
-var userDAO = require('../data/userDAO');              // ← AÑADIDO
+var userDAO = require('../data/userDAO');              
 
-// ← RUTAS DE AUTENTICACIÓN (reemplaza tu ruta vacía)
-router.get('/login', (req, res) => {                   // ← CAMBIADO
+// Vista login
+router.get('/login', (req, res) => {                   
   if (req.session && req.session.isLogged) return res.redirect('/');
   res.render('login', { error: null });
 });
 
+// Procesa login
 router.post('/login', (req, res) => {
   const { username, password } = req.body;
   const user = userDAO.getByUsername(username);
@@ -23,6 +25,7 @@ router.post('/login', (req, res) => {
   });
 });
 
+// Procesa registro
 router.post('/register', (req, res) => {
   const { username, password } = req.body;
   try {
@@ -33,6 +36,7 @@ router.post('/register', (req, res) => {
   }
 });
 
+// Procesa logout
 router.post('/logout', (req, res) => {
   req.session.destroy(() => {
     res.clearCookie('sesionId');
@@ -40,4 +44,5 @@ router.post('/logout', (req, res) => {
   });
 });
 
+// Exporta el router
 module.exports = router;

@@ -1,17 +1,17 @@
+// Rutas principales de la aplicación
 var express = require('express');
 var router = express.Router();
-var parkingDAO = require('../data/parkingDAO');        // ← AÑADIDO
-var { requireLogin } = require('../middlewares/auth'); // ← AÑADIDO
+var parkingDAO = require('../data/parkingDAO');        
+var { requireLogin } = require('../middlewares/auth'); 
 
-/* GET home page. */
-router.get('/', async function(req, res, next) {       // ← CAMBIADO (async)
+// Página principal: muestra estado y historial
+router.get('/', async function(req, res, next) {      
   let activeParking = null;
   let history = [];
-  if (req.session && req.session.isLogged) {           // ← AÑADIDO (verificar sesión)
+  if (req.session && req.session.isLogged) {          
     activeParking = parkingDAO.getActive(req.session.userId);
-    history = parkingDAO.getHistory(req.session.userId); // Solo historial del usuario
+    history = parkingDAO.getHistory(req.session.userId); 
   } else {
-    // Historial local del navegador (solo lo suyo)
     history = [];
   }
   res.render('index', {
@@ -21,18 +21,19 @@ router.get('/', async function(req, res, next) {       // ← CAMBIADO (async)
   });
 });
 
-// ← AÑADIDAS RUTAS DEL PARKING TRACKER
+// API: crear aparcamiento
 router.post('/api/parking', requireLogin, (req, res) => {
   const { lat, lng, timestamp } = req.body;
   const info = parkingDAO.create(req.session.userId, lat, lng, timestamp);
   res.json({ ok: true, id: info.lastInsertRowid });
 });
 
+// API: finalizar aparcamiento
 router.post('/api/parking/end', requireLogin, (req, res) => {
   const active = parkingDAO.getActive(req.session.userId);
   if (active) parkingDAO.deactivate(active.id);
   res.json({ ok: true });
 });
 
-
+// Exporta el router
 module.exports = router;

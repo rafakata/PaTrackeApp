@@ -3,8 +3,8 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-var session = require('express-session');              // ← AÑADIDO
-var ejsLayouts = require('express-ejs-layouts');       // ← AÑADIDO
+var session = require('express-session');              
+var ejsLayouts = require('express-ejs-layouts');       
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -14,15 +14,14 @@ var app = express();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
-app.use(ejsLayouts);                                   // ← AÑADIDO
-app.set('layout', 'layout');                           // ← AÑADIDO
+app.use(ejsLayouts);                                   
+app.set('layout', 'layout');                           
 
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-// ← SESIONES AÑADIDAS (necesario para login)
 app.use(session({
   name: 'sesionId',
   secret: process.env.SESSION_SECRET || 'parking_secret_key',
@@ -31,7 +30,6 @@ app.use(session({
   cookie: { httpOnly: true, secure: false, maxAge: 1000 * 60 * 60 * 24 }
 }));
 
-// ← PASAR USUARIO A TODAS LAS VISTAS
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
   next();
@@ -41,7 +39,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/', usersRouter); // Añadido para rutas /login, /register, /logout
+app.use('/', usersRouter); 
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

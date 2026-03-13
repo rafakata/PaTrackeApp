@@ -16,7 +16,7 @@
       <button class="btn btn-primary w-100">Entrar</button>
     </form>
     <hr>
-    <form action="/register" method="POST">
+    <form action="/register" method="POST" id="register-form" style="display:none;">
       <div class="mb-3">
         <label class="form-label">Crear cuenta - Usuario</label>
         <input type="text" name="username" class="form-control" required>
@@ -27,8 +27,24 @@
       </div>
       <button class="btn btn-success w-100">Registrarse</button>
     </form>
+    <button class="btn btn-outline-secondary w-100 mt-2" id="show-register">Registrarse</button>
     <p class="mt-3 text-center text-muted">
       <a href="/">Usar sin login (solo local)</a>
     </p>
   </div>
 </div>
+
+<script>
+  document.getElementById('show-register').addEventListener('click', function() {
+    const form = document.getElementById('register-form');
+    form.style.display = 'block';
+    form.animate([
+      { opacity: 0, transform: 'translateY(-20px)' },
+      { opacity: 1, transform: 'translateY(0)' }
+    ], {
+      duration: 400,
+      fill: 'forwards'
+    });
+    this.style.display = 'none';
+  });
+</script>

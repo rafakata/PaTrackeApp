@@ -9,6 +9,10 @@ class ParkingDAO {
     return db.prepare('SELECT * FROM parkings WHERE user_id = ? ORDER BY id DESC').all(userId);
   }
 
+  getHistoryAll() {
+    return db.prepare('SELECT * FROM parkings ORDER BY id DESC').all();
+  }
+
   create(userId, lat, lng, timestamp) {
     // ← AÑADIDO: Desactivar anteriores ANTES de crear nuevo
     this.deactivate_all(userId);

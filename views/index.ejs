@@ -34,10 +34,32 @@
   </div>
 </div>
 
-<!-- CORREGIDO: JSON correcto + Leaflet + Bootstrap -->
+<!-- Historial debajo del mapa -->
+<div class="row mt-5 justify-content-center">
+  <div class="col-md-10">
+    <h2 class="mb-4">📋 Historial de aparcamientos</h2>
+    <div class="table-responsive">
+      <table class="table table-striped table-hover">
+        <thead class="table-dark">
+          <tr>
+            <th>#</th>
+            <th>Latitud</th>
+            <th>Longitud</th>
+            <th>Fecha / Hora</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody id="history-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 <script>
-  // Datos del servidor (aparcamiento activo si existe)
   const serverParking = <%- JSON.stringify(activeParking || null) %>;
+  const isLogged = <%= user ? 'true' : 'false' %>;
+  const currentUserId = <%- JSON.stringify(user ? user.id : null) %>;
+  const initialHistory = <%- JSON.stringify(history || []) %>;
 </script>
 
 <!-- AÑADIR Leaflet ANTES de map.js -->

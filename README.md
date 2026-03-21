@@ -2,6 +2,9 @@
 
 Este repositorio contiene el código fuente de **PaTrackeApp**, una aplicación web orientada a la gestión y geolocalización de vehículos aparcados, desarrollada con un enfoque funcional y persistencia de datos híbrida.
 
+## ⛓️ Enlace desplegado
+https://patrackeapp.onrender.com
+
 ## 🛠️ Stack Tecnológico Core
 
 - **Framework de Servidor:** [Express 4.22.1](https://expressjs.com/) para la gestión de rutas y lógica de servidor.
